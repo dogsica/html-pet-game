@@ -491,6 +491,74 @@ body {
   70% {opacity:1;transform:translateX(-50%) scale(1);}
   100%{opacity:0;transform:translateX(-50%) scale(.94);}
 }
+
+/* ── BASKETBALL HOOP ── */
+#hoop{
+  position:absolute;right:14px;bottom:21%;
+  width:62px;height:148px;z-index:6;pointer-events:none;
+}
+.hoop-pole{
+  position:absolute;right:0;bottom:0;width:7px;height:148px;
+  background:linear-gradient(90deg,#5a3a0a 0%,#c8820a 45%,#7a4e0a 100%);
+  border-radius:3px 3px 0 0;
+}
+.hoop-board{
+  position:absolute;right:1px;bottom:96px;width:10px;height:52px;
+  background:rgba(235,235,255,0.92);border:2.5px solid #cc3300;border-radius:2px;
+  box-shadow:1px 1px 4px rgba(0,0,0,0.3);
+}
+.hoop-board::after{
+  content:'';position:absolute;top:10px;left:1px;right:1px;bottom:6px;
+  border:1.5px solid #cc3300;border-radius:1px;
+}
+.hoop-arm{
+  position:absolute;right:9px;bottom:130px;width:8px;height:5px;
+  background:#777;border-radius:2px;
+}
+.hoop-rim{
+  position:absolute;right:9px;bottom:120px;width:46px;height:8px;
+  background:linear-gradient(180deg,#f06020 0%,#c04010 100%);
+  border-radius:4px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.4),inset 0 1px 2px rgba(255,150,80,0.5);
+}
+.hoop-net{
+  position:absolute;right:12px;bottom:96px;width:38px;height:24px;
+  background:
+    repeating-linear-gradient(to bottom,transparent 0,transparent 5px,rgba(255,255,255,0.6) 5px,rgba(255,255,255,0.6) 6px),
+    repeating-linear-gradient(to right,transparent 0,transparent 7px,rgba(255,255,255,0.6) 7px,rgba(255,255,255,0.6) 8px);
+  clip-path:polygon(4% 0%,96% 0%,80% 100%,20% 100%);
+}
+
+/* ── BASKET SCORE ── */
+#basket-badge{
+  position:absolute;top:14px;right:14px;
+  background:rgba(0,0,0,0.48);backdrop-filter:blur(6px);
+  color:white;font-family:sans-serif;font-size:15px;font-weight:700;
+  padding:5px 11px;border-radius:18px;
+  display:flex;align-items:center;gap:3px;
+  z-index:30;pointer-events:none;
+}
+#basket-badge.bump{animation:badgeBump .45s cubic-bezier(.34,1.56,.64,1);}
+
+/* ── BASKET POP ── */
+#basket-pop{
+  position:absolute;top:22%;left:50%;
+  font-family:sans-serif;font-size:26px;font-weight:900;
+  color:#ff7700;
+  text-shadow:0 0 14px rgba(255,150,0,0.9),0 2px 5px rgba(0,0,0,0.55);
+  pointer-events:none;z-index:35;
+  opacity:0;white-space:nowrap;
+}
+#basket-pop.show{animation:celebFloat 2s ease-out forwards;}
+
+/* ── BACKFLIP ── */
+#turtle.backflipping{animation:backflipJump .75s cubic-bezier(.36,.07,.19,.97) forwards !important;}
+@keyframes backflipJump{
+  0%  {bottom:21%}
+  45% {bottom:calc(21% + 64px)}
+  55% {bottom:calc(21% + 64px)}
+  100%{bottom:21%}
+}
 </style>
 </head>
 <body>
@@ -505,6 +573,14 @@ body {
   <div id="trees"></div>
   <div id="bushes"></div>
   <div class="ground"></div>
+
+  <div id="hoop">
+    <div class="hoop-pole"></div>
+    <div class="hoop-board"></div>
+    <div class="hoop-arm"></div>
+    <div class="hoop-rim"></div>
+    <div class="hoop-net"></div>
+  </div>
 
   <div id="turtle">
     <div class="t-shadow"></div>
@@ -527,11 +603,13 @@ body {
   </div>
 
   <div id="streak-badge">&#x1F525; <span id="streak-num">1</span></div>
+  <div id="basket-badge">&#x1F3C0; <span id="basket-num">0</span></div>
   <div id="celebration"></div>
   <div id="evo-flash"></div>
   <div id="evo-banner"></div>
+  <div id="basket-pop"></div>
 
-  <div id="hint">Tap to feed &middot; Swipe to throw</div>
+  <div id="hint">Tap to feed &middot; Swipe to throw &middot; Shoot the hoop!</div>
 
 </div>
 
@@ -802,6 +880,50 @@ function triggerEvolution(stage){
   }, 650);
 }
 
+/* ── Basket / Hoop ── */
+const HOOP_RIM_RIGHT = 23;   // right edge of rim px from screen right
+const HOOP_RIM_WIDTH = 46;   // rim span in px
+const HOOP_RIM_ABOVE = 124;  // rim center px above groundY
+
+let basketCount = 0;
+let backflipActive = false;
+
+function scoreBasket(){
+  basketCount++;
+  const badge = document.getElementById('basket-badge');
+  document.getElementById('basket-num').textContent = basketCount;
+  badge.classList.remove('bump');
+  void badge.offsetWidth;
+  badge.classList.add('bump');
+  const msgs = ['SWISH!','NICE SHOT!','BASKET!','SCORE!'];
+  const pop = document.getElementById('basket-pop');
+  pop.innerHTML = msgs[Math.floor(Math.random() * msgs.length)] + ' &#x1F3C0;';
+  pop.classList.remove('show');
+  void pop.offsetWidth;
+  pop.classList.add('show');
+  setTimeout(doBackflip, 200);
+}
+
+function doBackflip(){
+  if(backflipActive) return;
+  backflipActive = true;
+  turtle.classList.add('backflipping');
+  const t0 = performance.now();
+  const dur = 750;
+  function frame(now){
+    const t = Math.min((now - t0) / dur, 1);
+    const rot = t * -360;
+    const sc = currentStage === 3 ? 1.48 : currentStage === 2 ? 1.22 : 1;
+    const flip = facingR ? 1 : -1;
+    turtle.style.transform = 'scaleX(' + flip + ') scale(' + sc + ') rotate(' + rot + 'deg)';
+    if(t < 1){ requestAnimationFrame(frame); return; }
+    backflipActive = false;
+    turtle.classList.remove('backflipping');
+    applyFlip();
+  }
+  requestAnimationFrame(frame);
+}
+
 /* ── Turtle state ── */
 let x = 60, targetX = 240, speed = 1.6, facingR = true;
 let state = 'wandering'; // wandering | idle | hunting | eating | sleeping
@@ -814,6 +936,7 @@ let zzzIntervalId = null;
 function getW(){ return Math.max(280, window.innerWidth || document.documentElement.clientWidth || 360); }
 
 function applyFlip(){
+  if(backflipActive) return;
   const sc = currentStage === 3 ? 1.48 : currentStage === 2 ? 1.22 : 1;
   turtle.style.transform = 'scaleX(' + (facingR ? 1 : -1) + ') scale(' + sc + ')';
 }
@@ -1026,7 +1149,7 @@ function throwFood(startX, startY, vx, vy){
   scene.appendChild(shadow);
   scene.appendChild(el);
 
-  const food = { x: startX, el, eaten: false, type: ft };
+  const food = { x: startX, el, eaten: false, type: ft, basketScored: false };
   let px = startX, py = startY;
   const GRAVITY = 0.0028;
   let lastT = null;
@@ -1037,7 +1160,17 @@ function throwFood(startX, startY, vx, vy){
     lastT = now;
     vy += GRAVITY * dt;
     px += vx * dt;
+    const prePy = py;
     py += vy * dt;
+    if(!food.basketScored && vy > 0){
+      const rimY  = groundY - HOOP_RIM_ABOVE;
+      const rimRX = getW() - HOOP_RIM_RIGHT;
+      const rimLX = rimRX - HOOP_RIM_WIDTH;
+      if(prePy < rimY && py >= rimY && px >= rimLX - 4 && px <= rimRX + 4){
+        food.basketScored = true;
+        scoreBasket();
+      }
+    }
 
     if(px < 5)             { px = 5;          vx = Math.abs(vx) * 0.45; }
     if(px > getW() - 5)   { px = getW() - 5; vx = -Math.abs(vx) * 0.45; }
