@@ -970,13 +970,15 @@ const FOOD_TYPES = ['leaf', 'berry', 'mushroom'];
 let currentFoodType = 0;
 let typeCycleId = null;
 
+function getW(){ return Math.max(280, window.innerWidth || document.documentElement.clientWidth || 360); }
+
 function applyFlip(){
   const sc = currentStage === 3 ? 1.6 : currentStage === 2 ? 1.1 : 0.7;
   turtle.style.transform = 'scaleX(' + (facingR ? 1 : -1) + ') scale(' + sc + ') rotate(' + danceAngle + 'deg)';
 }
 
 function pickWanderTarget(){
-  targetX = 30 + Math.random() * (window.innerWidth - 120);
+  targetX = 30 + Math.random() * (getW() - 120);
   speed   = 0.7 + Math.random() * 1.9;
 }
 
@@ -1032,10 +1034,20 @@ function maybeSleepAtNight(){
   }
 }
 
+/* ── Food types ── */
+const FOOD_TYPES = [
+  { cls: '',                crumbHue: 100, speedBonus: 0,    hearts: 1 },
+  { cls: 'food-strawberry', crumbHue: 5,   speedBonus: 0.9,  hearts: 2 },
+  { cls: 'food-lettuce',    crumbHue: 80,  speedBonus: -0.3, hearts: 1 },
+  { cls: 'food-berry',      crumbHue: 280, speedBonus: 0.4,  hearts: 1 },
+];
+function pickFoodType(){ return FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)]; }
+
 /* ── Drop food ── */
 function dropFood(screenX, type){
   if(sleeping) wakeUp();
-  const fx = Math.max(10, Math.min(window.innerWidth - 32, screenX - 11));
+  const fx = Math.max(10, Math.min(getW() - 32, screenX - 11));
+  const ft = pickFoodType();
   const el = document.createElement('div');
   el.className = 'food' + (type ? ' ' + type : '');
   el.style.left = fx + 'px';
@@ -1054,7 +1066,8 @@ function huntNearest(){
   );
   targetFood = nearest;
   targetX    = nearest.x - 48;
-  speed      = 2.7;
+  const bonus = nearest.type ? nearest.type.speedBonus : 0;
+  speed      = Math.max(1.2, 2.7 + bonus);
   if(idleTO){ clearTimeout(idleTO); idleTO = null; }
   sleeping = false;
   if(zzzIntervalId){ clearInterval(zzzIntervalId); zzzIntervalId = null; }
@@ -1117,12 +1130,12 @@ function goIdle(){
 }
 
 /* ── Particles ── */
-function spawnCrumbs(foodX){
+function spawnCrumbs(foodX, baseHue){
   const gy = window.innerHeight * (1 - 0.21) - 8;
   for(let i = 0; i < 7; i++){
     const c = document.createElement('div');
     const ang = Math.random() * Math.PI * 2, d = 12 + Math.random() * 22;
-    const sz = 3 + Math.random() * 4, hue = 90 + Math.random() * 40;
+    const sz = 3 + Math.random() * 4, hue = (baseHue || 90) + Math.random() * 40 - 20;
     c.className = 'crumb';
     c.style.cssText =
       'left:' + (foodX - 2) + 'px;top:' + gy + 'px;' +
@@ -1208,6 +1221,7 @@ function throwFood(startX, startY, vx, vy, type){
   const groundY = window.innerHeight * 0.79;
   if(startY >= groundY){ dropFood(startX, type); return; }
 
+  const ft = pickFoodType();
   const el = document.createElement('div');
   el.className = 'food flying' + (type ? ' ' + type : '');
   el.style.cssText = 'left:' + (startX - 11) + 'px;top:' + (startY - 10) + 'px;bottom:auto;animation:none;';
@@ -1230,13 +1244,13 @@ function throwFood(startX, startY, vx, vy, type){
     px += vx * dt;
     py += vy * dt;
 
-    if(px < 5)                   { px = 5;                    vx = Math.abs(vx) * 0.45; }
-    if(px > window.innerWidth-5) { px = window.innerWidth-5;  vx = -Math.abs(vx) * 0.45; }
+    if(px < 5)             { px = 5;          vx = Math.abs(vx) * 0.45; }
+    if(px > getW() - 5)   { px = getW() - 5; vx = -Math.abs(vx) * 0.45; }
 
     if(py >= groundY){
       py = groundY;
       shadow.remove();
-      const landX = Math.max(10, Math.min(window.innerWidth - 32, px - 11));
+      const landX = Math.max(10, Math.min(getW() - 32, px - 11));
       el.style.cssText = 'left:' + landX + 'px;bottom:21%;top:auto;animation:foodLand .38s ease-out forwards;';
       el.classList.remove('flying');
       food.x = landX + 11;
@@ -1275,6 +1289,7 @@ document.addEventListener('pointerdown', e => {
   _pid   = e.pointerId;
   currentFoodType = 0;
 
+  const _heldType = pickFoodType();
   heldFood = document.createElement('div');
   heldFood.className = 'food held ' + FOOD_TYPES[currentFoodType];
   heldFood.style.left = e.clientX + 'px';
@@ -1308,6 +1323,7 @@ document.addEventListener('pointerup', e => {
       const ft = FOOD_TYPES[currentFoodType];
       const fx = Math.max(10, Math.min(window.innerWidth - 32, e.clientX - 11));
       const el = heldFood;
+      const hft = el._foodType || FOOD_TYPES[0];
       heldFood = null;
       el.style.cssText =
         'left:' + fx + 'px;bottom:21%;top:auto;' +

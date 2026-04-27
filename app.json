@@ -2,6 +2,7 @@
   "expo": {
     "name": "html-pet-game",
     "slug": "html-pet-game",
+    "owner": "dogsica-pet-game-2024",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
