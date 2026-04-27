@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet, Platform } from "react-native";
 import { WebView } from "react-native-webview";
+import { GameState } from "../../constants/game-state";
 
 export default function HomeScreen() {
   const petHTML = `<!DOCTYPE html>
@@ -185,37 +186,61 @@ body {
 .stage2 .t-tail { background: radial-gradient(ellipse,#389838,#1a5018); }
 .stage2 .t-leg  { background: radial-gradient(ellipse at 40% 35%,#3ea83e,#185818); }
 
-/* ── STAGE 3 — Elder: ancient gold mandala, warm glow ── */
-.stage3 .t-body { background: #1c481c; }
+/* ── STAGE 3 — Elder: ancient gold mandala, dramatic glow ── */
+.stage3 .t-body { background: #122012; }
 .stage3 .t-shell {
-  background: radial-gradient(ellipse at 38% 32%,#4a8a20 0%,#1e5a10 45%,#082808 100%);
-  border-color: #041404; border-width: 3px;
-  box-shadow: inset -5px -7px 14px rgba(0,0,0,.52),
-              inset 3px 3px 8px rgba(255,255,255,.10),
-              0 0 22px rgba(200,170,40,.58),
-              0 0 7px rgba(255,220,80,.32);
+  background: radial-gradient(ellipse at 38% 32%,#4e7a18 0%,#183e0c 40%,#030b03 100%);
+  border-color: #c8a820; border-width: 3px;
+  box-shadow: inset -5px -7px 16px rgba(0,0,0,.60),
+              inset 3px 3px 8px rgba(255,255,255,.08),
+              0 0 32px rgba(220,180,40,.80),
+              0 0 12px rgba(255,220,80,.50);
+  animation: elderShellPulse 2.8s ease-in-out infinite;
+}
+@keyframes elderShellPulse {
+  0%,100% { box-shadow: inset -5px -7px 16px rgba(0,0,0,.60), inset 3px 3px 8px rgba(255,255,255,.08),
+                         0 0 28px rgba(220,180,40,.75), 0 0 10px rgba(255,220,80,.45); }
+  50%      { box-shadow: inset -5px -7px 16px rgba(0,0,0,.60), inset 3px 3px 8px rgba(255,255,255,.08),
+                         0 0 46px rgba(255,210,40,.95), 0 0 18px rgba(255,180,0,.65); }
 }
 .stage3 .t-shell::before {
   background-image:
-    radial-gradient(circle at 50% 50%, rgba(255,235,100,.88) 3px, transparent 3px),
-    radial-gradient(ellipse at 50% 50%, transparent 18%, rgba(255,215,80,.44) 20%, rgba(255,215,80,.44) 22%, transparent 24%),
-    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(255,190,60,.34) 42%, rgba(255,190,60,.34) 44%, transparent 46%),
-    radial-gradient(ellipse at 50% 50%, transparent 62%, rgba(255,170,50,.26) 64%, rgba(255,170,50,.26) 66%, transparent 68%),
+    /* Blazing center jewel */
+    radial-gradient(circle at 50% 50%, rgba(255,255,160,1) 2px, rgba(255,220,40,1) 5px, transparent 5px),
+    /* Ring 1 — bright inner halo */
+    radial-gradient(ellipse at 50% 50%, transparent 12%, rgba(255,230,60,.92) 13%, rgba(255,205,40,.92) 17%, transparent 18%),
+    /* Ring 2 */
+    radial-gradient(ellipse at 50% 50%, transparent 26%, rgba(255,200,50,.72) 27%, rgba(220,165,20,.72) 31%, transparent 32%),
+    /* Ring 3 */
+    radial-gradient(ellipse at 50% 50%, transparent 42%, rgba(200,160,30,.55) 43%, rgba(180,135,10,.55) 47%, transparent 48%),
+    /* Ring 4 — outermost */
+    radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(170,135,20,.38) 59%, rgba(150,115,5,.38) 63%, transparent 64%),
+    /* 12-point starburst spokes */
     repeating-conic-gradient(
-      rgba(255,220,80,0) 0deg 11deg,
-      rgba(255,220,80,.35) 11deg 15deg,
-      rgba(255,220,80,0) 15deg 30deg
+      rgba(255,230,80,0) 0deg 6deg,
+      rgba(255,215,60,.60) 6deg 9deg,
+      rgba(255,230,80,0) 9deg 30deg
     );
 }
 .stage3 .t-shell::after {
-  background: linear-gradient(130deg,rgba(255,240,120,.32) 0%,transparent 45%);
+  background: linear-gradient(130deg,rgba(255,245,130,.46) 0%,rgba(255,210,60,.15) 38%,transparent 58%);
+  border-radius:39px;
 }
-.stage3 .t-head { background: radial-gradient(ellipse at 38% 32%,#389838,#184e18); }
-.stage3 .t-tail { background: radial-gradient(ellipse,#2c8028,#124012); }
-.stage3 .t-leg  { background: radial-gradient(ellipse at 40% 35%,#2e9828,#104010); }
+.stage3 .t-head { background: radial-gradient(ellipse at 38% 32%,#3a9838,#174e17); overflow:visible; }
+/* Crown marking */
+.stage3 .t-head::before {
+  content:'';
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  width:18px;height:9px;
+  background:linear-gradient(180deg,#ffe566 0%,#c89800 100%);
+  clip-path:polygon(0% 100%,15% 42%,33% 85%,50% 0%,67% 85%,85% 42%,100% 100%);
+  filter:drop-shadow(0 0 3px rgba(255,200,40,.8));
+}
+.stage3 .t-tail { background: radial-gradient(ellipse,#2c8028,#102e10); }
+.stage3 .t-leg  { background: radial-gradient(ellipse at 40% 35%,#2e9828,#0e3e0e); }
 .stage3 .t-beard { display: block; }
 #turtle.stage3 {
-  filter: drop-shadow(0 0 18px rgba(210,175,40,.68)) drop-shadow(0 6px 5px rgba(0,0,0,.28));
+  filter: drop-shadow(0 0 26px rgba(230,190,40,.85)) drop-shadow(0 0 9px rgba(255,210,80,.55)) drop-shadow(0 6px 5px rgba(0,0,0,.28));
 }
 
 /* Exclamation bubble */
@@ -416,6 +441,54 @@ body {
   100%{transform:rotate(-22deg) scale(1);}
 }
 
+/* ── FOOD TYPES ── */
+/* Berry */
+.food.berry{
+  width:20px;height:20px;border-radius:50%;
+  background:radial-gradient(ellipse at 32% 28%,#ffb8d0 0%,#e8185a 52%,#9a0030 100%);
+  border-color:#7a0025;transform:rotate(0deg);
+}
+.food.berry::after{
+  content:'';position:absolute;
+  width:2px;height:7px;background:#2a8010;
+  border-radius:1px 1px 0 0;
+  top:-6px;left:50%;transform:translateX(-50%) rotate(10deg);
+}
+/* Mushroom */
+.food.mushroom{
+  width:24px;height:16px;
+  border-radius:50% 50% 22% 22%/65% 65% 28% 28%;
+  background:radial-gradient(ellipse at 38% 28%,#ff9060 0%,#e03000 55%,#9a1800 100%);
+  border-color:#6a1000;transform:rotate(0deg);
+}
+.food.mushroom::before{
+  content:'';position:absolute;
+  width:11px;height:9px;
+  background:linear-gradient(180deg,#f8f2ea 0%,#ddd0c0 100%);
+  border:1.5px solid #c0a890;border-radius:2px 2px 4px 4px;
+  bottom:-9px;left:50%;transform:translateX(-50%);
+}
+.food.mushroom::after{
+  content:'';position:absolute;
+  width:5px;height:5px;background:rgba(255,255,255,.88);
+  border-radius:50%;top:3px;left:4px;
+  box-shadow:9px 1px 0 rgba(255,255,255,.75);
+}
+/* Type-specific held glow + no-rotation pulse */
+.food.held.berry   {filter:drop-shadow(0 0 8px rgba(230,20,100,.65));}
+.food.held.mushroom{filter:drop-shadow(0 0 8px rgba(255,100,20,.65));}
+@keyframes heldPulseRound{
+  from{transform:translate(-50%,-50%) rotate(0deg) scale(1.2);}
+  to  {transform:translate(-50%,-50%) rotate(0deg) scale(1.38);}
+}
+.food.held.berry,.food.held.mushroom{animation-name:heldPulseRound !important;}
+/* Landed pulse without leaf rotation */
+@keyframes foodPulseRound{
+  0%,100%{transform:rotate(0deg) scale(1);}
+  50%    {transform:rotate(0deg) scale(1.14);}
+}
+.food.berry.landed,.food.mushroom.landed{animation-name:foodPulseRound !important;}
+
 /* ── STREAK BADGE ── */
 #streak-badge{
   position:absolute;top:14px;left:14px;
@@ -473,6 +546,48 @@ body {
   70% {opacity:1;transform:translateX(-50%) scale(1);}
   100%{opacity:0;transform:translateX(-50%) scale(.94);}
 }
+
+/* ── NAME SCREEN ── */
+#name-screen{
+  position:absolute;inset:0;z-index:100;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#bce6f8 0%,#a8d4f0 38%,#c8e8a8 72%,#7ab83a 100%);
+  transition:opacity .6s ease;
+}
+#name-screen .ns-turtle{font-size:72px;margin-bottom:14px;line-height:1;}
+#name-screen h1{
+  font-family:sans-serif;font-size:24px;font-weight:800;
+  color:#1e4e10;text-shadow:0 1px 3px rgba(255,255,255,.55);
+  margin-bottom:28px;text-align:center;padding:0 24px;line-height:1.3;
+}
+#name-screen input{
+  width:220px;font-family:sans-serif;font-size:20px;
+  padding:10px 18px;border-radius:26px;
+  border:2.5px solid #4a9a30;outline:none;
+  background:rgba(255,255,255,.9);color:#163010;
+  text-align:center;margin-bottom:22px;
+  box-shadow:0 2px 14px rgba(60,160,30,.22);
+  -webkit-appearance:none;
+}
+#name-screen input:focus{
+  border-color:#2a7a14;
+  box-shadow:0 0 0 3px rgba(80,180,40,.28),0 2px 14px rgba(60,160,30,.22);
+}
+#name-screen button{
+  font-family:sans-serif;font-size:18px;font-weight:700;
+  padding:13px 36px;border-radius:30px;border:none;
+  background:linear-gradient(135deg,#62d442,#2a9018);
+  color:white;cursor:pointer;
+  box-shadow:0 4px 18px rgba(50,150,20,.40);
+  transition:transform .12s,box-shadow .12s;
+}
+#name-screen button:active{
+  transform:scale(.94);
+  box-shadow:0 2px 8px rgba(50,150,20,.28);
+}
+#turtle-name-label{
+  font-size:11px;font-weight:400;opacity:.72;margin-left:5px;letter-spacing:.2px;
+}
 </style>
 </head>
 <body>
@@ -514,6 +629,13 @@ body {
   <div id="evo-banner"></div>
 
   <div id="hint">Tap to feed &middot; Swipe to throw</div>
+
+  <div id="name-screen">
+    <div class="ns-turtle">🐢</div>
+    <h1>What will you name<br>your turtle?</h1>
+    <input type="text" id="turtle-name-input" maxlength="18" placeholder="Enter a name…" autocomplete="off" spellcheck="false" />
+    <button id="name-btn">Let's go!</button>
+  </div>
 </div>
 
 <script>
@@ -688,49 +810,99 @@ function celestialXY(progress){
 updateSky();
 setInterval(updateSky, 60000);
 
+/* ── Turtle Name ── */
+let turtleName = '';
+
+function initNameScreen(){
+  try {
+    const saved = localStorage.getItem('turtleName');
+    if(saved){
+      turtleName = saved;
+      attachTurtleNameLabel();
+      return; // name already set — proceed to game normally
+    }
+  } catch(e){}
+  // First run — show the name screen
+  const ns = document.getElementById('name-screen');
+  ns.style.display = 'flex';
+  setTimeout(() => { document.getElementById('turtle-name-input').focus(); }, 80);
+
+  function confirmName(){
+    const input = document.getElementById('turtle-name-input');
+    const name  = input.value.trim();
+    if(!name) return;
+    turtleName = name;
+    try { localStorage.setItem('turtleName', name); } catch(e){}
+    attachTurtleNameLabel();
+    ns.style.opacity = '0';
+    setTimeout(() => { ns.style.display = 'none'; }, 650);
+  }
+
+  document.getElementById('name-btn').addEventListener('click', confirmName);
+  document.getElementById('turtle-name-input').addEventListener('keydown', e => {
+    if(e.key === 'Enter') confirmName();
+  });
+}
+
+function attachTurtleNameLabel(){
+  if(!turtleName) return;
+  const badge = document.getElementById('streak-badge');
+  if(badge.querySelector('#turtle-name-label')) return;
+  const el = document.createElement('span');
+  el.id = 'turtle-name-label';
+  el.textContent = turtleName;
+  badge.appendChild(el);
+}
+
 /* ── Streak System ── */
 let streak = 1;
 
 function initStreak(){
-  const today = new Date().toISOString().slice(0, 10);
-  const lastDate  = localStorage.getItem('lastVisitDate') || '';
-  const savedStreak = parseInt(localStorage.getItem('streakCount') || '0', 10);
-  const savedStage  = parseInt(localStorage.getItem('turtleStage') || '1', 10);
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const lastDate  = localStorage.getItem('lastVisitDate') || '';
+    const savedStreak = parseInt(localStorage.getItem('streakCount') || '0', 10);
+    const savedStage  = parseInt(localStorage.getItem('turtleStage') || '1', 10);
 
-  if(!lastDate){
-    // Very first visit
-    streak = 1;
-    localStorage.setItem('lastVisitDate', today);
-    localStorage.setItem('streakCount', '1');
-  } else if(lastDate === today){
-    // Same day — no change
-    streak = savedStreak || 1;
-  } else {
-    const prevDate  = new Date(lastDate + 'T12:00:00');
-    const todayDate = new Date(today    + 'T12:00:00');
-    const diffDays  = Math.round((todayDate - prevDate) / 86400000);
-
-    if(diffDays === 1){
-      streak = (savedStreak || 0) + 1;
-      localStorage.setItem('streakCount', String(streak));
-      localStorage.setItem('lastVisitDate', today);
-      setTimeout(() => showCelebration('&#x1F525; Day ' + streak + '!'), 900);
-    } else {
+    if(!lastDate){
+      // Very first visit
       streak = 1;
-      localStorage.setItem('streakCount', '1');
       localStorage.setItem('lastVisitDate', today);
-      setTimeout(() => showCelebration('&#x1F33F; Welcome back!'), 900);
+      localStorage.setItem('streakCount', '1');
+    } else if(lastDate === today){
+      // Same day — no change
+      streak = savedStreak || 1;
+    } else {
+      const prevDate  = new Date(lastDate + 'T12:00:00');
+      const todayDate = new Date(today    + 'T12:00:00');
+      const diffDays  = Math.round((todayDate - prevDate) / 86400000);
+
+      if(diffDays === 1){
+        streak = (savedStreak || 0) + 1;
+        localStorage.setItem('streakCount', String(streak));
+        localStorage.setItem('lastVisitDate', today);
+        setTimeout(() => showCelebration('&#x1F525; Day ' + streak + (turtleName ? '! ' + turtleName + ' evolved!' : '!')), 900);
+      } else {
+        streak = 1;
+        localStorage.setItem('streakCount', '1');
+        localStorage.setItem('lastVisitDate', today);
+        setTimeout(() => showCelebration('&#x1F33F; Welcome back' + (turtleName ? ', ' + turtleName + '!' : '!')), 900);
+      }
     }
-  }
 
-  document.getElementById('streak-num').textContent = streak;
+    document.getElementById('streak-num').textContent = streak;
 
-  const newStage = getStage(streak);
-  if(newStage > savedStage){
-    setTimeout(() => triggerEvolution(newStage), 1700);
-  } else {
-    applyStage(newStage);
-    localStorage.setItem('turtleStage', String(newStage));
+    const newStage = getStage(streak);
+    if(newStage > savedStage){
+      setTimeout(() => triggerEvolution(newStage), 1700);
+    } else {
+      applyStage(newStage);
+      localStorage.setItem('turtleStage', String(newStage));
+    }
+  } catch(e) {
+    // localStorage unavailable (e.g. iOS WebView with no baseUrl) — boot with defaults
+    document.getElementById('streak-num').textContent = streak;
+    applyStage(1);
   }
 }
 
@@ -759,6 +931,7 @@ function applyStage(stage){
   turtle.classList.remove('stage1', 'stage2', 'stage3');
   turtle.classList.add('stage' + stage);
   currentStage = stage;
+  try { window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify({type:'stage',value:stage})); } catch(e){}
 }
 
 function triggerEvolution(stage){
@@ -791,10 +964,15 @@ const foods = [];
 let targetFood = null;
 let sleeping = false;
 let zzzIntervalId = null;
+let danceAngle = 0, danceDir = 1, danceId = null;
+
+const FOOD_TYPES = ['leaf', 'berry', 'mushroom'];
+let currentFoodType = 0;
+let typeCycleId = null;
 
 function applyFlip(){
-  const sc = currentStage === 3 ? 1.48 : currentStage === 2 ? 1.22 : 1;
-  turtle.style.transform = 'scaleX(' + (facingR ? 1 : -1) + ') scale(' + sc + ')';
+  const sc = currentStage === 3 ? 1.6 : currentStage === 2 ? 1.1 : 0.7;
+  turtle.style.transform = 'scaleX(' + (facingR ? 1 : -1) + ') scale(' + sc + ') rotate(' + danceAngle + 'deg)';
 }
 
 function pickWanderTarget(){
@@ -838,7 +1016,7 @@ function spawnZzz(){
   const z = document.createElement('div');
   z.className = 'zzz';
   z.textContent = ['z', 'z', 'zz', 'zzz'][Math.floor(Math.random() * 4)];
-  const sc = currentStage === 3 ? 1.48 : currentStage === 2 ? 1.22 : 1;
+  const sc = currentStage === 3 ? 1.6 : currentStage === 2 ? 1.1 : 0.7;
   const headX = facingR ? (x + 88 * sc) : (x - 10 * sc);
   z.style.left = headX + 'px';
   z.style.top  = (window.innerHeight * (1 - 0.21) - 85 * sc - Math.random() * 8) + 'px';
@@ -855,14 +1033,14 @@ function maybeSleepAtNight(){
 }
 
 /* ── Drop food ── */
-function dropFood(screenX){
+function dropFood(screenX, type){
   if(sleeping) wakeUp();
   const fx = Math.max(10, Math.min(window.innerWidth - 32, screenX - 11));
   const el = document.createElement('div');
-  el.className = 'food';
+  el.className = 'food' + (type ? ' ' + type : '');
   el.style.left = fx + 'px';
   scene.appendChild(el);
-  const food = { x: fx + 11, el, eaten: false };
+  const food = { x: fx + 11, el, eaten: false, type: type || 'leaf' };
   foods.push(food);
   setTimeout(() => { if(!food.eaten) el.classList.add('landed'); }, 580);
   if(state !== 'eating') huntNearest();
@@ -899,7 +1077,14 @@ function startEating(){
   const idx = foods.indexOf(food);
   if(idx > -1) foods.splice(idx, 1);
   spawnCrumbs(food.x);
-  setTimeout(() => spawnHeart(), 340);
+  const ftype = food.type || 'leaf';
+  if(ftype === 'berry'){
+    setTimeout(() => berryEffect(), 300);
+  } else if(ftype === 'mushroom'){
+    setTimeout(() => mushroomEffect(), 300);
+  } else {
+    setTimeout(() => spawnHeart(), 340);
+  }
   setTimeout(() => food.el.remove(), 420);
   setTimeout(() => {
     turtle.classList.remove('eating');
@@ -957,6 +1142,46 @@ function spawnHeart(){
   setTimeout(() => h.remove(), 1150);
 }
 
+function spawnStar(cx, cy){
+  const s = document.createElement('div');
+  s.textContent = '★';
+  s.style.cssText = 'position:absolute;font-size:18px;color:#ffcc00;' +
+    'left:' + cx + 'px;top:' + cy + 'px;pointer-events:none;' +
+    'animation:heartFloat 1.1s ease-out forwards;';
+  scene.appendChild(s);
+  setTimeout(() => s.remove(), 1100);
+}
+
+function berryEffect(){
+  speed = Math.min(speed * 1.9, 5.5);
+  for(let i = 0; i < 3; i++){
+    setTimeout(() => {
+      const h = document.createElement('div');
+      h.className = 'heart'; h.textContent = '♥';
+      h.style.cssText = 'left:' + (x + 14 + i * 22) + 'px;bottom:calc(21% + 76px);color:#e8185a;';
+      scene.appendChild(h);
+      setTimeout(() => h.remove(), 1150);
+    }, i * 130);
+  }
+}
+
+function mushroomEffect(){
+  if(danceId) return;
+  spawnHeart();
+  const baseY = window.innerHeight * (1 - 0.21) - 110;
+  spawnStar(x + 20, baseY); spawnStar(x + 50, baseY - 20); spawnStar(x + 36, baseY + 10);
+  danceAngle = 0; danceDir = 1;
+  danceId = setInterval(() => {
+    danceAngle += danceDir * 7;
+    if(Math.abs(danceAngle) >= 22) danceDir *= -1;
+    applyFlip();
+  }, 55);
+  setTimeout(() => {
+    clearInterval(danceId); danceId = null;
+    danceAngle = 0; applyFlip();
+  }, 1100);
+}
+
 function spawnRipple(cx, cy){
   const r = document.createElement('div');
   r.className = 'ripple';
@@ -979,12 +1204,12 @@ function spawnFootprint(){
 }
 
 /* ── Throw food ── */
-function throwFood(startX, startY, vx, vy){
+function throwFood(startX, startY, vx, vy, type){
   const groundY = window.innerHeight * 0.79;
-  if(startY >= groundY){ dropFood(startX); return; }
+  if(startY >= groundY){ dropFood(startX, type); return; }
 
   const el = document.createElement('div');
-  el.className = 'food flying';
+  el.className = 'food flying' + (type ? ' ' + type : '');
   el.style.cssText = 'left:' + (startX - 11) + 'px;top:' + (startY - 10) + 'px;bottom:auto;animation:none;';
 
   const shadow = document.createElement('div');
@@ -992,7 +1217,7 @@ function throwFood(startX, startY, vx, vy){
   scene.appendChild(shadow);
   scene.appendChild(el);
 
-  const food = { x: startX, el, eaten: false };
+  const food = { x: startX, el, eaten: false, type: type || 'leaf' };
   let px = startX, py = startY;
   const GRAVITY = 0.0028;
   let lastT = null;
@@ -1040,24 +1265,36 @@ function throwFood(startX, startY, vx, vy){
 let _drag = null;
 let _pid  = null;
 let heldFood = null;
+let _trail = [];
 
 document.addEventListener('pointerdown', e => {
   if(_drag) return;
   if(sleeping) wakeUp();
-  _drag = { x: e.clientX, y: e.clientY, t: Date.now() };
-  _pid  = e.pointerId;
+  _drag  = { x: e.clientX, y: e.clientY, t: Date.now() };
+  _trail = [{ x: e.clientX, y: e.clientY, t: Date.now() }];
+  _pid   = e.pointerId;
+  currentFoodType = 0;
 
   heldFood = document.createElement('div');
-  heldFood.className = 'food held';
+  heldFood.className = 'food held ' + FOOD_TYPES[currentFoodType];
   heldFood.style.left = e.clientX + 'px';
   heldFood.style.top  = e.clientY + 'px';
   scene.appendChild(heldFood);
+
+  typeCycleId = setInterval(() => {
+    currentFoodType = (currentFoodType + 1) % FOOD_TYPES.length;
+    if(heldFood) heldFood.className = 'food held ' + FOOD_TYPES[currentFoodType];
+  }, 450);
 });
 
 document.addEventListener('pointermove', e => {
   if(!heldFood || !_drag || e.pointerId !== _pid) return;
   heldFood.style.left = e.clientX + 'px';
   heldFood.style.top  = e.clientY + 'px';
+  const now = Date.now();
+  _trail.push({ x: e.clientX, y: e.clientY, t: now });
+  // Keep only the last 100ms of movement for velocity sampling
+  while(_trail.length > 1 && now - _trail[0].t > 100) _trail.shift();
 });
 
 document.addEventListener('pointerup', e => {
@@ -1065,42 +1302,56 @@ document.addEventListener('pointerup', e => {
   const dx   = e.clientX - _drag.x;
   const dy   = e.clientY - _drag.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
-  const dt   = Math.max(1, Date.now() - _drag.t);
 
   if(dist < 10){
     if(heldFood){
+      const ft = FOOD_TYPES[currentFoodType];
       const fx = Math.max(10, Math.min(window.innerWidth - 32, e.clientX - 11));
       const el = heldFood;
       heldFood = null;
       el.style.cssText =
         'left:' + fx + 'px;bottom:21%;top:auto;' +
         'animation:foodSettleDown .44s ease-out forwards;';
-      el.className = 'food';
-      const food = { x: fx + 11, el, eaten: false };
+      el.className = 'food ' + ft;
+      const food = { x: fx + 11, el, eaten: false, type: ft };
       foods.push(food);
       setTimeout(() => { if(!food.eaten) el.classList.add('landed'); }, 460);
       if(state !== 'eating') huntNearest();
     } else {
-      dropFood(e.clientX);
+      dropFood(e.clientX, FOOD_TYPES[currentFoodType]);
     }
     spawnRipple(e.clientX, e.clientY);
   } else {
     if(heldFood){ heldFood.remove(); heldFood = null; }
+    // Use only the recent trail window for velocity so pausing before a flick
+    // doesn't kill the throw speed
+    let vx, vy;
+    if(_trail.length >= 2){
+      const oldest = _trail[0];
+      const newest = _trail[_trail.length - 1];
+      const dt = Math.max(1, newest.t - oldest.t);
+      vx = (newest.x - oldest.x) / dt * 1.7;
+      vy = (newest.y - oldest.y) / dt * 1.7;
+    } else {
+      const dt = Math.max(1, Date.now() - _drag.t);
+      vx = dx / dt * 1.7;
+      vy = dy / dt * 1.7;
+    }
     const MAX_SPD = 2.4;
-    let vx = dx / dt * 1.7;
-    let vy = dy / dt * 1.7;
     const spd = Math.sqrt(vx * vx + vy * vy);
     if(spd > MAX_SPD){ vx = vx / spd * MAX_SPD; vy = vy / spd * MAX_SPD; }
-    throwFood(e.clientX, e.clientY, vx, vy);
+    throwFood(e.clientX, e.clientY, vx, vy, FOOD_TYPES[currentFoodType]);
     spawnRipple(_drag.x, _drag.y);
   }
-  _drag = null; _pid = null;
+  if(typeCycleId){ clearInterval(typeCycleId); typeCycleId = null; }
+  _drag = null; _pid = null; _trail = [];
 });
 
 document.addEventListener('pointercancel', e => {
   if(e.pointerId !== _pid) return;
   if(heldFood){ heldFood.remove(); heldFood = null; }
-  _drag = null; _pid = null;
+  if(typeCycleId){ clearInterval(typeCycleId); typeCycleId = null; }
+  _drag = null; _pid = null; _trail = [];
 });
 
 /* ── Main Loop ── */
@@ -1124,6 +1375,7 @@ function update(){
 
 /* ── Init ── */
 pickWanderTarget();
+initNameScreen();
 initStreak();
 update();
 </script>
@@ -1143,6 +1395,12 @@ update();
           source={{ html: petHTML }}
           style={{ flex: 1 }}
           scrollEnabled={false}
+          onMessage={(e) => {
+            try {
+              const msg = JSON.parse(e.nativeEvent.data);
+              if (msg.type === 'stage') GameState.turtleStage = msg.value;
+            } catch {}
+          }}
         />
       )}
     </View>
