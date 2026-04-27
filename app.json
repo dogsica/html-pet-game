@@ -2,6 +2,7 @@
   "expo": {
     "name": "html-pet-game",
     "slug": "html-pet-game",
+    "owner": "dogsica-pet-game-2024",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -43,6 +44,17 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eab15da0-f80e-43f9-96c1-324c32512056"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/eab15da0-f80e-43f9-96c1-324c32512056"
     }
   }
 }

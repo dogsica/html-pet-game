@@ -416,6 +416,24 @@ body {
   100%{transform:rotate(-22deg) scale(1);}
 }
 
+/* ── FOOD TYPES ── */
+.food-strawberry{
+  background:radial-gradient(ellipse at 35% 30%,#ffaaaa 0%,#e83030 50%,#a01010 100%);
+  border-color:#7a0808;border-radius:48% 48% 44% 44%/60% 60% 40% 40%;
+}
+.food-strawberry::after{ background:rgba(100,20,0,.6); }
+.food-lettuce{
+  background:radial-gradient(ellipse at 35% 30%,#d4f08a 0%,#7ac820 55%,#3a7a08 100%);
+  border-color:#1e5a03;border-radius:60% 40% 55% 45%/50% 60% 40% 50%;
+  width:26px;height:18px;
+}
+.food-lettuce::after{ background:rgba(10,50,0,.5); width:1px; }
+.food-berry{
+  background:radial-gradient(ellipse at 38% 30%,#d090e8 0%,#8830c8 55%,#4a1088 100%);
+  border-color:#2a0860;border-radius:50%;
+}
+.food-berry::after{ background:rgba(30,0,80,.55); height:10px; }
+
 /* ── STREAK BADGE ── */
 #streak-badge{
   position:absolute;top:14px;left:14px;
@@ -514,6 +532,7 @@ body {
   <div id="evo-banner"></div>
 
   <div id="hint">Tap to feed &middot; Swipe to throw</div>
+
 </div>
 
 <script>
@@ -792,13 +811,15 @@ let targetFood = null;
 let sleeping = false;
 let zzzIntervalId = null;
 
+function getW(){ return Math.max(280, window.innerWidth || document.documentElement.clientWidth || 360); }
+
 function applyFlip(){
   const sc = currentStage === 3 ? 1.48 : currentStage === 2 ? 1.22 : 1;
   turtle.style.transform = 'scaleX(' + (facingR ? 1 : -1) + ') scale(' + sc + ')';
 }
 
 function pickWanderTarget(){
-  targetX = 30 + Math.random() * (window.innerWidth - 120);
+  targetX = 30 + Math.random() * (getW() - 120);
   speed   = 0.7 + Math.random() * 1.9;
 }
 
@@ -854,15 +875,25 @@ function maybeSleepAtNight(){
   }
 }
 
+/* ── Food types ── */
+const FOOD_TYPES = [
+  { cls: '',                crumbHue: 100, speedBonus: 0,    hearts: 1 },
+  { cls: 'food-strawberry', crumbHue: 5,   speedBonus: 0.9,  hearts: 2 },
+  { cls: 'food-lettuce',    crumbHue: 80,  speedBonus: -0.3, hearts: 1 },
+  { cls: 'food-berry',      crumbHue: 280, speedBonus: 0.4,  hearts: 1 },
+];
+function pickFoodType(){ return FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)]; }
+
 /* ── Drop food ── */
 function dropFood(screenX){
   if(sleeping) wakeUp();
-  const fx = Math.max(10, Math.min(window.innerWidth - 32, screenX - 11));
+  const fx = Math.max(10, Math.min(getW() - 32, screenX - 11));
+  const ft = pickFoodType();
   const el = document.createElement('div');
-  el.className = 'food';
+  el.className = 'food' + (ft.cls ? ' ' + ft.cls : '');
   el.style.left = fx + 'px';
   scene.appendChild(el);
-  const food = { x: fx + 11, el, eaten: false };
+  const food = { x: fx + 11, el, eaten: false, type: ft };
   foods.push(food);
   setTimeout(() => { if(!food.eaten) el.classList.add('landed'); }, 580);
   if(state !== 'eating') huntNearest();
@@ -876,7 +907,8 @@ function huntNearest(){
   );
   targetFood = nearest;
   targetX    = nearest.x - 48;
-  speed      = 2.7;
+  const bonus = nearest.type ? nearest.type.speedBonus : 0;
+  speed      = Math.max(1.2, 2.7 + bonus);
   if(idleTO){ clearTimeout(idleTO); idleTO = null; }
   sleeping = false;
   if(zzzIntervalId){ clearInterval(zzzIntervalId); zzzIntervalId = null; }
@@ -898,8 +930,9 @@ function startEating(){
   food.el.classList.add('eaten');
   const idx = foods.indexOf(food);
   if(idx > -1) foods.splice(idx, 1);
-  spawnCrumbs(food.x);
-  setTimeout(() => spawnHeart(), 340);
+  const ft = food.type || FOOD_TYPES[0];
+  spawnCrumbs(food.x, ft.crumbHue);
+  for(let h = 0; h < ft.hearts; h++) setTimeout(() => spawnHeart(), 340 + h * 260);
   setTimeout(() => food.el.remove(), 420);
   setTimeout(() => {
     turtle.classList.remove('eating');
@@ -932,12 +965,12 @@ function goIdle(){
 }
 
 /* ── Particles ── */
-function spawnCrumbs(foodX){
+function spawnCrumbs(foodX, baseHue){
   const gy = window.innerHeight * (1 - 0.21) - 8;
   for(let i = 0; i < 7; i++){
     const c = document.createElement('div');
     const ang = Math.random() * Math.PI * 2, d = 12 + Math.random() * 22;
-    const sz = 3 + Math.random() * 4, hue = 90 + Math.random() * 40;
+    const sz = 3 + Math.random() * 4, hue = (baseHue || 90) + Math.random() * 40 - 20;
     c.className = 'crumb';
     c.style.cssText =
       'left:' + (foodX - 2) + 'px;top:' + gy + 'px;' +
@@ -983,8 +1016,9 @@ function throwFood(startX, startY, vx, vy){
   const groundY = window.innerHeight * 0.79;
   if(startY >= groundY){ dropFood(startX); return; }
 
+  const ft = pickFoodType();
   const el = document.createElement('div');
-  el.className = 'food flying';
+  el.className = 'food flying' + (ft.cls ? ' ' + ft.cls : '');
   el.style.cssText = 'left:' + (startX - 11) + 'px;top:' + (startY - 10) + 'px;bottom:auto;animation:none;';
 
   const shadow = document.createElement('div');
@@ -992,7 +1026,7 @@ function throwFood(startX, startY, vx, vy){
   scene.appendChild(shadow);
   scene.appendChild(el);
 
-  const food = { x: startX, el, eaten: false };
+  const food = { x: startX, el, eaten: false, type: ft };
   let px = startX, py = startY;
   const GRAVITY = 0.0028;
   let lastT = null;
@@ -1005,13 +1039,13 @@ function throwFood(startX, startY, vx, vy){
     px += vx * dt;
     py += vy * dt;
 
-    if(px < 5)                   { px = 5;                    vx = Math.abs(vx) * 0.45; }
-    if(px > window.innerWidth-5) { px = window.innerWidth-5;  vx = -Math.abs(vx) * 0.45; }
+    if(px < 5)             { px = 5;          vx = Math.abs(vx) * 0.45; }
+    if(px > getW() - 5)   { px = getW() - 5; vx = -Math.abs(vx) * 0.45; }
 
     if(py >= groundY){
       py = groundY;
       shadow.remove();
-      const landX = Math.max(10, Math.min(window.innerWidth - 32, px - 11));
+      const landX = Math.max(10, Math.min(getW() - 32, px - 11));
       el.style.cssText = 'left:' + landX + 'px;bottom:21%;top:auto;animation:foodLand .38s ease-out forwards;';
       el.classList.remove('flying');
       food.x = landX + 11;
@@ -1047,8 +1081,10 @@ document.addEventListener('pointerdown', e => {
   _drag = { x: e.clientX, y: e.clientY, t: Date.now() };
   _pid  = e.pointerId;
 
+  const _heldType = pickFoodType();
   heldFood = document.createElement('div');
-  heldFood.className = 'food held';
+  heldFood.className = 'food held' + (_heldType.cls ? ' ' + _heldType.cls : '');
+  heldFood._foodType = _heldType;
   heldFood.style.left = e.clientX + 'px';
   heldFood.style.top  = e.clientY + 'px';
   scene.appendChild(heldFood);
@@ -1069,14 +1105,15 @@ document.addEventListener('pointerup', e => {
 
   if(dist < 10){
     if(heldFood){
-      const fx = Math.max(10, Math.min(window.innerWidth - 32, e.clientX - 11));
+      const fx = Math.max(10, Math.min(getW() - 32, e.clientX - 11));
       const el = heldFood;
+      const hft = el._foodType || FOOD_TYPES[0];
       heldFood = null;
       el.style.cssText =
         'left:' + fx + 'px;bottom:21%;top:auto;' +
         'animation:foodSettleDown .44s ease-out forwards;';
-      el.className = 'food';
-      const food = { x: fx + 11, el, eaten: false };
+      el.className = 'food' + (hft.cls ? ' ' + hft.cls : '');
+      const food = { x: fx + 11, el, eaten: false, type: hft };
       foods.push(food);
       setTimeout(() => { if(!food.eaten) el.classList.add('landed'); }, 460);
       if(state !== 'eating') huntNearest();
@@ -1123,9 +1160,13 @@ function update(){
 }
 
 /* ── Init ── */
-pickWanderTarget();
-initStreak();
-update();
+function init(){
+  pickWanderTarget();
+  initStreak();
+  update();
+}
+// Delay so WebView has time to calculate correct window dimensions
+setTimeout(init, 80);
 </script>
 </body>
 </html>`;
