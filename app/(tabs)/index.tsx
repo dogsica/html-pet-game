@@ -604,10 +604,10 @@ body {
 </div>
 
 <script>
-window.onerror = function(msg, src, line){
+window.onerror = function(msg, src, line, col, err){
   const e = document.createElement('div');
-  e.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:red;color:#fff;padding:8px;font:13px monospace;word-break:break-all';
-  e.textContent = 'JS ERR: ' + msg + ' (L' + line + ')';
+  e.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#c00;color:#fff;padding:20px 16px;font:bold 18px monospace;word-break:break-all;text-align:center;min-height:80px';
+  e.textContent = 'ERR L' + line + ': ' + msg;
   document.body && document.body.appendChild(e);
 };
 const scene  = document.getElementById('scene');
@@ -1292,9 +1292,16 @@ function update(){
 
 /* ── Init ── */
 function init(){
-  pickWanderTarget();
-  initStreak();
-  update();
+  try {
+    pickWanderTarget();
+    initStreak();
+    update();
+  } catch(err) {
+    const e = document.createElement('div');
+    e.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#900;color:#fff;padding:20px 16px;font:bold 18px monospace;word-break:break-all;text-align:center';
+    e.textContent = 'INIT ERR: ' + (err && err.message ? err.message : String(err));
+    document.body.appendChild(e);
+  }
 }
 // Delay so WebView has time to calculate correct window dimensions
 setTimeout(init, 80);
