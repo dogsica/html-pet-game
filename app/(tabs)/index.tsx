@@ -551,14 +551,6 @@ body {
 }
 #basket-pop.show{animation:celebFloat 2s ease-out forwards;}
 
-/* ── BACKFLIP ── */
-#turtle.backflipping{animation:backflipJump .75s cubic-bezier(.36,.07,.19,.97) forwards !important;}
-@keyframes backflipJump{
-  0%  {bottom:21%}
-  45% {bottom:calc(21% + 64px)}
-  55% {bottom:calc(21% + 64px)}
-  100%{bottom:21%}
-}
 </style>
 </head>
 <body>
@@ -907,18 +899,17 @@ function scoreBasket(){
 function doBackflip(){
   if(backflipActive) return;
   backflipActive = true;
-  turtle.classList.add('backflipping');
   const t0 = performance.now();
   const dur = 750;
   function frame(now){
     const t = Math.min((now - t0) / dur, 1);
     const rot = t * -360;
+    const jumpY = -Math.sin(t * Math.PI) * 58;
     const sc = currentStage === 3 ? 1.48 : currentStage === 2 ? 1.22 : 1;
     const flip = facingR ? 1 : -1;
-    turtle.style.transform = 'scaleX(' + flip + ') scale(' + sc + ') rotate(' + rot + 'deg)';
+    turtle.style.transform = 'scaleX(' + flip + ') scale(' + sc + ') translateY(' + jumpY + 'px) rotate(' + rot + 'deg)';
     if(t < 1){ requestAnimationFrame(frame); return; }
     backflipActive = false;
-    turtle.classList.remove('backflipping');
     applyFlip();
   }
   requestAnimationFrame(frame);
