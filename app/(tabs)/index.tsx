@@ -81,7 +81,6 @@ body {
   position:absolute;width:96px;height:72px;bottom:21%;
   transform-origin:48px 72px;
   filter:drop-shadow(0 6px 5px rgba(0,0,0,.28));
-  will-change:left,transform;
   z-index:10;
 }
 .t-shadow{
@@ -239,8 +238,7 @@ body {
 .walking .t-leg.fr,.walking .t-leg.bl{animation:legB .32s ease-in-out infinite alternate;}
 @keyframes legA{from{transform:rotate(-20deg)}to{transform:rotate(20deg)}}
 @keyframes legB{from{transform:rotate(20deg)}to{transform:rotate(-20deg)}}
-#turtle.walking{animation:bob .32s ease-in-out infinite alternate;}
-@keyframes bob{from{bottom:21%}to{bottom:calc(21% + 2.5px)}}
+#turtle.walking{}
 
 /* Idle nod */
 #turtle.idle-nod .t-head{animation:nod .5s ease-in-out 2;}
@@ -606,6 +604,12 @@ body {
 </div>
 
 <script>
+window.onerror = function(msg, src, line){
+  const e = document.createElement('div');
+  e.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:red;color:#fff;padding:8px;font:13px monospace;word-break:break-all';
+  e.textContent = 'JS ERR: ' + msg + ' (L' + line + ')';
+  document.body && document.body.appendChild(e);
+};
 const scene  = document.getElementById('scene');
 const turtle = document.getElementById('turtle');
 const skyEl  = document.getElementById('sky');
@@ -1268,16 +1272,19 @@ document.addEventListener('pointercancel', e => {
 function update(){
   if(!sleeping){
     const dx = targetX - x;
+    let bobY = 0;
     if(state === 'wandering' || state === 'hunting'){
       x += Math.sign(dx) * speed;
       facingR = dx > 0; applyFlip();
       fTimer++; if(fTimer % 20 === 0) spawnFootprint();
+      bobY = Math.sin(fTimer * 0.35) * 2;
       if(state === 'hunting'){
         if(Math.abs(dx) < 22) startEating();
       } else {
         if(Math.abs(dx) < 3) goIdle();
       }
     }
+    turtle.style.bottom = 'calc(21% + ' + bobY.toFixed(2) + 'px)';
     turtle.style.left = x + 'px';
   }
   requestAnimationFrame(update);
@@ -1308,6 +1315,8 @@ setTimeout(init, 80);
           source={{ html: petHTML }}
           style={{ flex: 1 }}
           scrollEnabled={false}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
         />
       )}
     </View>
